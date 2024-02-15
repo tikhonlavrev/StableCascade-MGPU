@@ -1,12 +1,13 @@
 # GLOBAL STUFF
 experiment_id: stage_c_3b_lora
-checkpoint_path: /path/to/checkpoint
-output_path: /path/to/output
+checkpoint_path: output
+output_path: output
 model_version: 3.6B
+dtype: bfloat16
 
 # WandB
-wandb_project: StableCascade
-wandb_entity: wandb_username
+# wandb_project: StableCascade
+# wandb_entity: wandb_username
 
 # TRAINING PARAMS
 lr: 1.0e-4
@@ -36,9 +37,7 @@ train_tokens:
 # ema_iters: 100
 # ema_beta: 0.9
 
-webdataset_path:
-  - s3://path/to/your/first/dataset/on/s3
-  - s3://path/to/your/second/dataset/on/s3
+webdataset_path: file:input/data.tar
 effnet_checkpoint_path: models/effnet_encoder.safetensors
 previewer_checkpoint_path: models/previewer.safetensors
 generator_checkpoint_path: models/stage_c_bf16.safetensors
