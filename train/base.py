@@ -133,7 +133,7 @@ class DataCore(WarpCore):
         return self.Data(dataset=dataset, dataloader=dataloader, iterator=dataloader_iterator)
 
     def get_conditions(self, batch: dict, models: Models, extras: Extras, is_eval=False, is_unconditional=False,
-                       eval_image_embeds=False, return_fields=None):
+                       eval_image_embeds=False, return_fields=None, dtype=None):
         if return_fields is None:
             return_fields = ['clip_text', 'clip_text_pooled', 'clip_img']
 
@@ -163,7 +163,7 @@ class DataCore(WarpCore):
 
         image_embeddings = None
         if 'clip_img' in return_fields:
-            image_embeddings = torch.zeros(batch_size, 768, device=self.device, dtype=torch.bfloat16)
+            image_embeddings = torch.zeros(batch_size, 768, device=self.device, dtype=torch.float32 if dtype == None else dtype)
             if images is not None:
                 images = images.to(self.device)
                 if is_eval:

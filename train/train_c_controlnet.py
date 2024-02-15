@@ -155,7 +155,8 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
         with torch.no_grad():
             conditions = super().get_conditions(
                 batch, models, extras, is_eval, is_unconditional,
-                eval_image_embeds, return_fields=return_fields or ['clip_text', 'clip_text_pooled', 'clip_img']
+                eval_image_embeds, return_fields=return_fields or ['clip_text', 'clip_text_pooled', 'clip_img'],
+            dtype=getattr(torch, self.config.dtype) if self.config.dtype else torch.float32
             )
         return conditions
 

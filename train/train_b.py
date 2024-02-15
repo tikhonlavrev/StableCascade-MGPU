@@ -130,7 +130,8 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
             
         conditions = super().get_conditions(
             batch, models, extras, is_eval, is_unconditional,
-            eval_image_embeds, return_fields=return_fields or ['clip_text_pooled']
+            eval_image_embeds, return_fields=return_fields or ['clip_text_pooled'],
+            dtype=getattr(torch, self.config.dtype) if self.config.dtype else torch.float32
         )
 
         return {'effnet': effnet_embeddings, 'clip': conditions['clip_text_pooled']}
