@@ -1,4 +1,67 @@
 # Stable Cascade
+
+### My personal training and inference testing using bfloat16 and AdamW8bit via bitsandbytes with Stable Cascade...<br>
+
+<i>Currently using 10870MiB of VRAM at a 1024 training resolution and getting near 7+ it/s on a 4090 pl @ 300W</i><br>
+
+If you want to try here are the instructions:<br>
+
+use/activate python venv or conda:<br>
+```
+conda create -n stablecascade python=3.10
+conda activate stablecascade
+```
+
+```
+git clone https://github.com/2kpr/StableCascade
+cd StableCascade
+```
+
+download the files listed below from https://huggingface.co/stabilityai/stable-cascade/tree/main:<br>
+```
+- effnet_encoder.safetensors
+- previewer.safetensors
+- stage_a.safetensors
+- stage_b_bf16.safetensors
+- stage_b_lite_bf16.safetensors
+- stage_c_lite_bf16.safetensors
+```
+
+and place them in the models folder<br>
+
+```
+pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121
+
+pip install -r requirements.txt
+```
+
+Train the stage C 1B model using the data from input/data.tar:<br>
+```
+python train/train_c.py configs/training/finetune_c_1b.yaml
+```
+<i>(Output trained model at StableCascade/output/stage_c_1b_finetuning)</i><br>
+
+Use the stable B 3B for inference with the trained stage C 1B model:<br>
+```
+python inference/trained_c_1b_stage_b_3b.py
+```
+<i>(Output inference images at StableCascade/output/trained_c_1b_stage_b_3b_preview_c.png and StableCascade/output/trained_c_1b_stage_b_3b_sampled.png)</i><br>
+
+Or use the stable B 700M for inference with the trained stage C 1B model:<br>
+```
+python inference/trained_c_1b_stage_b_1b.py
+```
+<i>(Output inference images at StableCascade/output/trained_c_1b_stage_b_1b_preview_c.png and StableCascade/output/trained_c_1b_stage_b_1b_sampled.png)</i><br>
+
+Use the stable B 3B for inference with the original stage C 1B model:<br>
+```
+python inference/stage_c_1b_stage_b_3b.py
+```
+<i>(Output inference images at StableCascade/output/stage_c_1b_stage_b_3b_preview_c.png and StableCascade/output/stage_c_1b_stage_b_3b_sampled.png)</i><br>
+
+<br><br>
+# Stable Cascade
+
 <p align="center">
     <img src="figures/collage_1.jpg" width="800">
 </p>
