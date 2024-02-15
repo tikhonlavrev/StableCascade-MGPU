@@ -1,5 +1,6 @@
 import torch
 import torchvision
+import bitsandbytes as bnb
 from torch import nn, optim
 from transformers import AutoTokenizer, CLIPTextModelWithProjection
 from warmup_scheduler import GradualWarmupScheduler
@@ -8,7 +9,7 @@ import numpy as np
 import sys
 import os
 from dataclasses import dataclass
-
+sys.path.append(os.getcwd())
 from gdf import GDF, EpsilonTarget, CosineSchedule
 from gdf import VPScaler, CosineTNoiseCond, DDPMSampler, P2LossWeight, AdaptiveLossWeight
 from torchtools.transforms import SmartCrop
@@ -37,7 +38,7 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
         lr: float = EXPECTED_TRAIN
         warmup_updates: int = EXPECTED_TRAIN
         shift: float = EXPECTED_TRAIN
-        dtype: str = None
+        dtype: str = EXPECTED
 
         # MODEL VERSION
         model_version: str = EXPECTED  # 3BB or 700M
@@ -209,7 +210,7 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
         )
 
     def setup_optimizers(self, extras: Extras, models: Models) -> TrainingCore.Optimizers:
-        optimizer = optim.AdamW(models.generator.parameters(), lr=self.config.lr)  # , eps=1e-7, betas=(0.9, 0.95))
+        optimizer = bnb.optim.Adam8bit(models.generator.parameters(), lr=self.config.lr)  # , eps=1e-7, betas=(0.9, 0.95))
         optimizer = self.load_optimizer(optimizer, 'generator_optim',
                                         fsdp_model=models.generator if self.config.use_fsdp else None)
         return self.Optimizers(generator=optimizer)
@@ -296,7 +297,7 @@ if __name__ == '__main__':
     print("Launching Script")
     warpcore = WurstCore(
         config_file_path=sys.argv[1] if len(sys.argv) > 1 else None,
-        device=torch.device(int(os.environ.get("SLURM_LOCALID")))
+        device=torch.device(0)
     )
     # core.fsdp_defaults['sharding_strategy'] = ShardingStrategy.NO_SHARD
 

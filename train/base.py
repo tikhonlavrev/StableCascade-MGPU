@@ -163,7 +163,7 @@ class DataCore(WarpCore):
 
         image_embeddings = None
         if 'clip_img' in return_fields:
-            image_embeddings = torch.zeros(batch_size, 768, device=self.device)
+            image_embeddings = torch.zeros(batch_size, 768, device=self.device, dtype=torch.bfloat16)
             if images is not None:
                 images = images.to(self.device)
                 if is_eval:
