@@ -41,6 +41,8 @@ python train/train_c.py configs/training/finetune_c_1b.yaml
 ```
 <i>(Output trained model at StableCascade/output/stage_c_1b_finetuning)</i><br>
 
+To make your own dataset see: https://github.com/2kpr/StableCascade/tree/master/train#dataset<br>
+
 Use the stable B 3B for inference with the trained stage C 1B model:<br>
 ```
 python inference/trained_c_1b_stage_b_3b.py
