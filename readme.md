@@ -2,7 +2,9 @@
 
 ### My personal training and inference testing using bfloat16 and AdamW8bit via bitsandbytes with Stable Cascade...<br>
 
-<i>Currently using 10870MiB of VRAM at a 1024 training resolution and getting near 7+ it/s on a 4090 pl @ 300W</i><br>
+<i>Currently using under 11GB of VRAM at a 1024 training resolution and getting near:<br>
+- 7+ it/s on a 4090 pl @ 300W<br>
+- 3+ it/s on a 3080 Ti pl @ 300W</i><br>
 
 If you want to try here are the instructions:<br>
 
