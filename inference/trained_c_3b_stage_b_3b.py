@@ -58,8 +58,8 @@ print("STAGE B READY")
 batch_size = 4
 # caption = "Cinematic photo of an anthropomorphic nerdy rodent sitting in a cafe reading a book"
 # caption = "Cinematic photo of an anthropomorphic penguin sitting in a cafe reading a book and having a coffee"
-if len(sys.argv) == 3:
-    caption = sys.argv[2]
+if len(sys.argv) == 2:
+    caption = sys.argv[1]
 else:
     caption = "fairy with green hair in the forest"
 height, width = 1024, 1024
