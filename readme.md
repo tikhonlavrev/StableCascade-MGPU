@@ -3,7 +3,7 @@
 ### Personal testing / optimization repo...
 
 Current stats using this repo on a single 4090 <i>(power limited to 300W)</i>
-|Stage C Model|Resolution|Data Type|Batch Size|VRAM (MiB)|Iterations/sec|Optimizer|
+|Stage C|Resolution|Data Type|Batch Size|VRAM (MiB)|Iterations/sec|Optimizer|
 |---|---|---|---|---|---|---|
 |3.6B|1024|bf16|1|20844|1.67|Adafactor|
 |3.6B|768|bf16|1|21842|2.0|Adafactor|
