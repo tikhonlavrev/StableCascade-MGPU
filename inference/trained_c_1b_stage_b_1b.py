@@ -15,6 +15,15 @@ config_file = 'configs/inference/trained_c_1b.yaml'
 with open(config_file, "r", encoding="utf-8") as file:
     loaded_config = yaml.safe_load(file)
 
+path = loaded_config["generator_checkpoint_path"]
+if not os.path.exists(path):
+    path = loaded_config["generator_checkpoint_path"].replace("generator.safetensors", "")
+    if os.path.exists(path):
+        for file in os.listdir(path):
+            if file.endswith(".safetensors"):
+                loaded_config["generator_checkpoint_path"] = path + "/" + file
+print("Using", loaded_config["generator_checkpoint_path"], "for inference...")
+
 core = WurstCoreC(config_dict=loaded_config, device=device, training=False)
 
 # SETUP STAGE B
@@ -49,7 +58,10 @@ print("STAGE B READY")
 batch_size = 4
 # caption = "Cinematic photo of an anthropomorphic nerdy rodent sitting in a cafe reading a book"
 # caption = "Cinematic photo of an anthropomorphic penguin sitting in a cafe reading a book and having a coffee"
-caption = "fairy with green hair in the forest"
+if len(sys.argv) == 3:
+    caption = sys.argv[2]
+else:
+    caption = "fairy with green hair in the forest"
 height, width = 1024, 1024
 stage_c_latent_shape, stage_b_latent_shape = calculate_latent_sizes(height, width, batch_size=batch_size)
 

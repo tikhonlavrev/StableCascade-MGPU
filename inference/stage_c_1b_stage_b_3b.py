@@ -49,7 +49,10 @@ print("STAGE B READY")
 batch_size = 4
 # caption = "Cinematic photo of an anthropomorphic nerdy rodent sitting in a cafe reading a book"
 # caption = "Cinematic photo of an anthropomorphic penguin sitting in a cafe reading a book and having a coffee"
-caption = "fairy with green hair in the forest"
+if len(sys.argv) == 3:
+    caption = sys.argv[2]
+else:
+    caption = "fairy with green hair in the forest"
 height, width = 1024, 1024
 stage_c_latent_shape, stage_b_latent_shape = calculate_latent_sizes(height, width, batch_size=batch_size)
 

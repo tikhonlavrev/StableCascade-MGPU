@@ -1,3 +1,4 @@
+import os
 import yaml
 import json
 import torch
@@ -194,6 +195,7 @@ class TrainingCore(DataCore, WarpCore):
         ema_beta: float = None
 
         use_fsdp: bool = None
+        optimizer_type: str = None
 
     @dataclass()  # not frozen, means that fields are mutable. Doesn't support EXPECTED
     class Info(WarpCore.Info):
@@ -310,7 +312,8 @@ class TrainingCore(DataCore, WarpCore):
                     self.sample(models, data, extras)
 
     def save_checkpoints(self, models: Models, optimizers: Optimizers, suffix=None):
-        barrier()
+        if 'SLURM_LOCALID' in os.environ:
+            barrier()
         suffix = '' if suffix is None else suffix
         self.save_info(self.info, suffix=suffix)
         models_dict = models.to_dict()
@@ -382,7 +385,7 @@ class TrainingCore(DataCore, WarpCore):
                 ], dim=-2)
 
                 torchvision.utils.save_image(collage_img, f'{self.config.output_path}/{self.config.experiment_id}/{self.info.total_steps:06d}.jpg')
-                torchvision.utils.save_image(collage_img, f'{self.config.experiment_id}_latest_output.jpg')
+                #torchvision.utils.save_image(collage_img, f'{self.config.experiment_id}_latest_output.jpg')
 
                 captions = batch['captions']
                 if self.config.wandb_project is not None:

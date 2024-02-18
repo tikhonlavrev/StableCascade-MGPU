@@ -11,7 +11,8 @@ def create_folder_if_necessary(path):
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
-def safe_save(ckpt, path):
+def safe_save(ckpt, path, iter):
+    '''
     try:
         os.remove(f"{path}.bak")
     except OSError:
@@ -20,12 +21,16 @@ def safe_save(ckpt, path):
         os.rename(path, f"{path}.bak")
     except OSError:
         pass
+    '''
     if path.endswith(".pt") or path.endswith(".ckpt"):
+        path = path.replace(".pt", f'-{iter:06}.pt')
         torch.save(ckpt, path)
     elif path.endswith(".json"):
+        path = path.replace(".json", f'-{iter:06}.json')
         with open(path, "w", encoding="utf-8") as f:
             json.dump(ckpt, f, indent=4)
     elif path.endswith(".safetensors"):
+        path = path.replace(".safetensors", f'-{iter:06}.safetensors')
         safetensors.torch.save_file(ckpt, path)
     else:
         raise ValueError(f"File extension not supported: {path}")

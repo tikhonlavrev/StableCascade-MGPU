@@ -142,9 +142,9 @@ class WarpCore(ABC):
 
     def setup_ddp(self, experiment_id, single_gpu=False):
         if not single_gpu:
-            local_rank = 0
-            process_id = 0
-            world_size = 1 * torch.cuda.device_count()
+            local_rank = int(os.environ.get("SLURM_LOCALID"))
+            process_id = int(os.environ.get("SLURM_PROCID"))
+            world_size = int(os.environ.get("SLURM_NNODES")) * torch.cuda.device_count()
 
             self.process_id = process_id
             self.is_main_node = process_id == 0
@@ -231,7 +231,7 @@ class WarpCore(ABC):
         full_path = f"{self.config.checkpoint_path}/{self.config.experiment_id}/info{suffix}.json"
         create_folder_if_necessary(full_path)
         if self.is_main_node:
-            safe_save(vars(self.info), full_path)
+            safe_save(vars(self.info), full_path, self.info.iter)
 
     def save_model(self, model, model_id=None, full_path=None, is_fsdp=False):
         if model_id is not None and full_path is None:
@@ -249,12 +249,12 @@ class WarpCore(ABC):
             ):
                 checkpoint = model.state_dict()
             if self.is_main_node:
-                safe_save(checkpoint, full_path)
+                safe_save(checkpoint, full_path, self.info.iter)
             del checkpoint
         else:
             if self.is_main_node:
                 checkpoint = model.state_dict()
-                safe_save(checkpoint, full_path)
+                safe_save(checkpoint, full_path, self.info.iter)
                 del checkpoint
 
     def save_optimizer(self, optim, optim_id=None, full_path=None, fsdp_model=None):
@@ -268,12 +268,12 @@ class WarpCore(ABC):
         if fsdp_model is not None:
             optim_statedict = FSDP.full_optim_state_dict(fsdp_model, optim)
             if self.is_main_node:
-                safe_save(optim_statedict, full_path)
+                safe_save(optim_statedict, full_path, self.info.iter)
             del optim_statedict
         else:
             if self.is_main_node:
                 checkpoint = optim.state_dict()
-                safe_save(checkpoint, full_path)
+                safe_save(checkpoint, full_path, self.info.iter)
                 del checkpoint
     # -----
 

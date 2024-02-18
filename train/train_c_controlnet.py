@@ -1,6 +1,5 @@
 import torch
 import torchvision
-import bitsandbytes as bnb
 from torch import nn, optim
 from transformers import AutoTokenizer, CLIPTextModelWithProjection, CLIPVisionModelWithProjection
 from warmup_scheduler import GradualWarmupScheduler
@@ -33,7 +32,7 @@ import functools
 from accelerate import init_empty_weights
 from accelerate.utils import set_module_tensor_to_device
 from contextlib import contextmanager
-
+import transformers
 
 class WurstCore(TrainingCore, DataCore, WarpCore):
     @dataclass(frozen=True)
@@ -42,7 +41,7 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
         lr: float = EXPECTED_TRAIN
         warmup_updates: int = EXPECTED_TRAIN
         offset_noise: float = None
-        dtype: str = EXPECTED
+        dtype: str = None
 
         # MODEL VERSION
         model_version: str = EXPECTED  # 3.6B or 1B
@@ -236,8 +235,25 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
             tokenizer=tokenizer, text_model=text_model, image_model=image_model
         )
 
-    def setup_optimizers(self, extras: Extras, models: Models) -> Optimizers:
-        optimizer = bnb.optim.Adam8bit(models.controlnet.parameters(), lr=self.config.lr)  # , eps=1e-7, betas=(0.9, 0.95))
+    def setup_optimizers(self, extras: Extras, models: Models) -> TrainingCore.Optimizers:
+        optimizer_type = self.config.optimizer_type.lower()
+        optimizer_kwargs = {}
+        if optimizer_type == "adamw":
+            optimizer = optim.AdamW
+        elif optimizer_type == "adamw8bit":
+            try:
+                import bitsandbytes as bnb
+            except ImportError:
+                raise ImportError(
+                    "To use AdamW8bit, install bitsandbytes with: pip install bitsandbytes"
+                )
+            optimizer = bnb.optim.AdamW8bit
+        else:#if optimizer_type == "adafactor":
+            optimizer_kwargs["scale_parameter"] = False
+            optimizer_kwargs["relative_step"] = False
+            optimizer_kwargs["warmup_init"] = False
+            optimizer = transformers.optimization.Adafactor
+        optimizer = optimizer(models.controlnet.parameters(), lr=self.config.lr, **optimizer_kwargs)
         optimizer = self.load_optimizer(optimizer, 'controlnet_optim',
                                         fsdp_model=models.controlnet if self.config.use_fsdp else None)
         return self.Optimizers(generator=None, controlnet=optimizer)
@@ -358,7 +374,7 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
                 ], dim=-2)
 
                 torchvision.utils.save_image(collage_img, f'{self.config.output_path}/{self.config.experiment_id}/{self.info.total_steps:06d}.jpg')
-                torchvision.utils.save_image(collage_img, f'{self.config.experiment_id}_latest_output.jpg')
+                #torchvision.utils.save_image(collage_img, f'{self.config.experiment_id}_latest_output.jpg')
 
                 captions = batch['captions']
                 if self.config.wandb_project is not None:
@@ -374,11 +390,12 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
 
 if __name__ == '__main__':
     print("Launching Script")
+    single_gpu = False if 'SLURM_LOCALID' in os.environ else True
     warpcore = WurstCore(
         config_file_path=sys.argv[1] if len(sys.argv) > 1 else None,
-        device=torch.device(0)
+        device=torch.device("cuda" if single_gpu else int(os.environ.get('SLURM_LOCALID')))
     )
     warpcore.fsdp_defaults['sharding_strategy'] = ShardingStrategy.NO_SHARD
 
     # RUN TRAINING
-    warpcore()
+    warpcore(single_gpu=single_gpu)

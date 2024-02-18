@@ -11,9 +11,18 @@ from train import WurstCoreC, WurstCoreB
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # SETUP STAGE C
-config_file = 'configs/inference/stage_c_1b.yaml'
+config_file = 'configs/inference/trained_c_3b.yaml'
 with open(config_file, "r", encoding="utf-8") as file:
     loaded_config = yaml.safe_load(file)
+
+path = loaded_config["generator_checkpoint_path"]
+if not os.path.exists(path):
+    path = loaded_config["generator_checkpoint_path"].replace("generator.safetensors", "")
+    if os.path.exists(path):
+        for file in os.listdir(path):
+            if file.endswith(".safetensors"):
+                loaded_config["generator_checkpoint_path"] = path + "/" + file
+print("Using", loaded_config["generator_checkpoint_path"], "for inference...")
 
 core = WurstCoreC(config_dict=loaded_config, device=device, training=False)
 
@@ -86,7 +95,7 @@ with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.bfloat16):
         sampled_c = sampled_c
         
     preview_c = models.previewer(sampled_c).float()
-    show_images(preview_c, "output/stage_c_1b_stage_b_1b_preview_c.png")
+    show_images(preview_c, "output/trained_c_3b_stage_b_1b_preview_c.png")
 
     conditions_b['effnet'] = sampled_c
     unconditions_b['effnet'] = torch.zeros_like(sampled_c)
@@ -100,4 +109,4 @@ with torch.no_grad(), torch.cuda.amp.autocast(dtype=torch.bfloat16):
     torch.cuda.empty_cache()
     sampled = models_b.stage_a.decode(sampled_b).float()
 
-show_images(sampled, "output/stage_c_1b_stage_b_1b_sampled.png")
+show_images(sampled, "output/trained_c_3b_stage_b_1b_sampled.png")
