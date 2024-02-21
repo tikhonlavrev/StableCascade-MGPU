@@ -37,11 +37,19 @@ Download the files listed below from https://huggingface.co/stabilityai/stable-c
 
 And place them in the models folder<br>
 
-Install PyTorch and the other requirements:<br>
+Install PyTorch stable or nightly (only install one):<br>
 
 ```
-pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121
+Stable:
+pip install torch torchvision torchaudio
 
+Nightly:
+pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121
+```
+
+Install other requirements:<br>
+
+```
 pip install -r requirements.txt
 ```
 ### Dataset
