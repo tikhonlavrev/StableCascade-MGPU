@@ -28,6 +28,7 @@ from accelerate import init_empty_weights
 from accelerate.utils import set_module_tensor_to_device
 from contextlib import contextmanager
 import transformers
+import adafactor
 
 class WurstCore(TrainingCore, DataCore, WarpCore):
     @dataclass(frozen=True)
@@ -211,6 +212,8 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
             optimizer_kwargs["relative_step"] = False
             optimizer_kwargs["warmup_init"] = False
             optimizer = transformers.optimization.Adafactor
+            if self.config.stochastic_rounding:
+                transformers.optimization.Adafactor.step = adafactor.step
         optimizer = optimizer(models.generator.parameters(), lr=self.config.lr, **optimizer_kwargs)
         optimizer = self.load_optimizer(optimizer, 'generator_optim',
                                         fsdp_model=models.generator if self.config.use_fsdp else None)

@@ -196,6 +196,7 @@ class TrainingCore(DataCore, WarpCore):
 
         use_fsdp: bool = None
         optimizer_type: str = None
+        stochastic_rounding: bool = None
 
     @dataclass()  # not frozen, means that fields are mutable. Doesn't support EXPECTED
     class Info(WarpCore.Info):

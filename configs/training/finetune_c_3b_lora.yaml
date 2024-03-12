@@ -4,6 +4,7 @@ checkpoint_path: output
 output_path: output
 model_version: 3.6B
 dtype: bfloat16
+stochastic_rounding: True
 
 # WandB
 # wandb_project: StableCascade
