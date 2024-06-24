@@ -1,5 +1,14 @@
 # Stable Cascade
 
+#
+#
+#
+## I recommend you use OneTrainer <i>(by <a href="https://github.com/Nerogar">Nerogar</a>)</i> for Stable Cascade at this point as it is more fully featured:
+https://github.com/Nerogar/OneTrainer
+#
+#
+#
+
 ### Personal testing / optimization repo...
 
 Current stats using this repo on a single 4090 <i>(power limited to 300W)</i>
