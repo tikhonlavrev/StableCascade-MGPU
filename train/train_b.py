@@ -316,12 +316,11 @@ class WurstCore(TrainingCore, DataCore, WarpCore):
 
 if __name__ == '__main__':
     print("Launching Script")
-    single_gpu = False if 'SLURM_LOCALID' in os.environ else True
     warpcore = WurstCore(
         config_file_path=sys.argv[1] if len(sys.argv) > 1 else None,
-        device=torch.device("cuda" if single_gpu else int(os.environ.get('SLURM_LOCALID')))
+        device=torch.device(int(os.environ.get("LOCAL_RANK")))
     )
     # core.fsdp_defaults['sharding_strategy'] = ShardingStrategy.NO_SHARD
 
     # RUN TRAINING
-    warpcore(single_gpu=single_gpu)
+    warpcore()
