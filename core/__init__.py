@@ -142,9 +142,9 @@ class WarpCore(ABC):
 
     def setup_ddp(self, experiment_id, single_gpu=False):
         if not single_gpu:
-            local_rank = int(os.environ.get("SLURM_LOCALID"))
-            process_id = int(os.environ.get("SLURM_PROCID"))
-            world_size = int(os.environ.get("SLURM_NNODES")) * torch.cuda.device_count()
+            local_rank = int(os.environ.get("LOCAL_RANK"))
+            process_id = int(os.environ.get("RANK"))
+            world_size = int(os.environ.get("WORLD_SIZE")) #* torch.cuda.device_count()
 
             self.process_id = process_id
             self.is_main_node = process_id == 0
@@ -157,10 +157,10 @@ class WarpCore(ABC):
 
             torch.cuda.set_device(local_rank)
             init_process_group(
-                backend="nccl",
+                backend="nccl", # Theoritically you can change "nccl" into "gloo" so you can use multi-GPU on windows, but it's slower than  using NCCL
                 rank=process_id,
                 world_size=world_size,
-                init_method=f"file://{dist_file_path}",
+                init_method='env://',
             )
             print(f"[GPU {process_id}] READY")
         else:
