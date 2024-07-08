@@ -1,3 +1,10 @@
+# MultiGPU Command
+To run multi GPU use: torchrun --standalone --nnodes 1 --nproc_per_node N train/train_b.py configs/training/finetune_b_3b.yaml
+
+Change "N" with your GPU count, example if you have 3 GPUs, then the command should be "torchrun --standalone --nnodes 1 --nproc_per_node 3 train/train_b.py configs/training/finetune_b_3b.yaml"
+
+The command example above is to train the Stage B, adjust it depending on what you want to train
+
 # Training
 <p align="center">
     <img src="../figures/collage_3.jpg" width="600">
